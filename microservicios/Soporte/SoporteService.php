@@ -2,8 +2,7 @@
 
 // Verificar que la solicitud sea un POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('HTTP/1.1 405 Method Not Allowed');
-    echo 'Acceso incorrecto';
+    include '../../error/404.php';
     exit;
 }
 else {
@@ -17,9 +16,7 @@ else {
 
         // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
         if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
-            header('WWW-Authenticate: Basic realm="EcuApp"');
-            header('HTTP/1.0 401 Unauthorized');
-            echo 'Autenticación incorrecta';
+            include '../../error/405.php';
             exit;
         } 
         else {
@@ -44,15 +41,13 @@ else {
                             $respuesta = $user->EnviarToken($data['mail'], $data['token']);
                             break;
                         default:
-                            header('HTTP/1.1 405 Method Not Allowed');
-                            echo 'Acceso incorrecto';
+                            include '../../error/404.php';
                             break;
                     }
                     echo json_encode($respuesta);
                 }
                 else {
-                        header('HTTP/1.1 405 Method Not Allowed');
-                        echo 'Acceso incorrecto';
+                        include '../../error/404.php';
                         exit;
                 }
         }

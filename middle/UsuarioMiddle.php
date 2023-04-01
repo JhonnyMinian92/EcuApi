@@ -46,21 +46,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(true);
                 break;
             default:
-                header('HTTP/1.1 405 Method Not Allowed');
-                echo 'Acceso incorrecto';
+                include '../error/404.php';
                 break;
         }
     } 
     else {
-            header('HTTP/1.1 405 Method Not Allowed');
-            echo 'Acceso incorrecto';
+            include '../error/405.php';
             exit;
     }
 
 } else {
-    // Código que se ejecuta si la solicitud no es POST
-    header('HTTP/1.1 405 Method Not Allowed');
-    echo 'Acceso incorrecto';
+    include '../error/404.php';
     exit;
 }
 

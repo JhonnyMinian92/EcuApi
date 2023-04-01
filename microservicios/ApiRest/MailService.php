@@ -1,8 +1,7 @@
 <?php
     // Verificar que la solicitud sea un POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('HTTP/1.1 405 Method Not Allowed');
-        echo 'Acceso incorrecto';
+        include '../../error/404.php';
         exit;
     }
     else {
@@ -11,9 +10,7 @@
             //obtener clases almacenadas
             $conexion = new CONECTAR();
             if ($_SERVER['PHP_AUTH_USER'] !== $conexion->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $conexion->getPasservice()) {
-                header('WWW-Authenticate: Basic realm="EcuApp"');
-                header('HTTP/1.0 401 Unauthorized');
-                echo 'Autenticación incorrecta';
+                include '../../error/405.php';
                 exit;
             } 
             else {
