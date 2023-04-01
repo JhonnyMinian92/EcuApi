@@ -101,7 +101,8 @@ function ValidarToken($token){
             "opcion" => "permiso",
             "token" => $token,
             "almacen" => $_SESSION["token"]
-        );
+    );
+    global $patch;
     // Convertir el array a formato JSON
     $json_data = json_encode($data);
     //llamar al servicio validar token
