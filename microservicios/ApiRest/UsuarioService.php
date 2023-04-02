@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit', '-1');
 
 // Verificar que la solicitud sea un POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

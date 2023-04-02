@@ -21,11 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $json = ServicioLogueo($_POST["correo"],$_POST["clave"]);
                 $data = json_decode($json);
                 if($data->status){ 
-                    $_SESSION["token"] = $data->token; 
-                    $_SESSION["idusuario"]  = $data->idusuario; 
-                    $_SESSION["rol"] = $data->rol;
-                }
-                echo json_encode($data->status);
+                    if($data->rol != 5){
+                        $_SESSION["token"] = $data->token; 
+                        $_SESSION["idusuario"]  = $data->idusuario; 
+                        $_SESSION["rol"] = $data->rol;
+                        echo json_encode($data->status); 
+                    } else { echo json_encode("-1"); }  
+                } else { echo json_encode($data->status); }
                 break;
             case "op2":
                 //funcion para Ingresar Usuario

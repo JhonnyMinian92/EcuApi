@@ -20,12 +20,14 @@ class USUARIOCLASS {
         $this->crud = new MICRUD();
         //conexion a clases de rol referencia a BD
          $this->rol = new ROLCLASS();
+         //definir el token en vacio
+         $this->token = "";
     }
     
     //funcion login
     public function Loguearse($mail, $clave){
         $respuesta = false;
-        $select = "SELECT userapp.id_userapp, userapp.mail_user, userapp.pass_user, rolapp.idrol, rolapp.nomrol FROM userapp, rolapp WHERE userapp.rol_user = rolapp.idrol AND userapp.mail_user = ? AND (userapp.rol_user != 4 AND userapp.rol_user != 5) LIMIT 1";
+        $select = "SELECT userapp.id_userapp, userapp.mail_user, userapp.pass_user, rolapp.idrol, rolapp.nomrol FROM userapp, rolapp WHERE userapp.rol_user = rolapp.idrol AND userapp.mail_user = ? AND (userapp.rol_user != 0 AND userapp.rol_user != 4) LIMIT 1";
         $result = $this->crud->Encontrar($mail, $select);
         if ($result->num_rows === 1) { 
                     // Obtener la fila del resultado
@@ -39,16 +41,17 @@ class USUARIOCLASS {
                         //almacenar en la clase lo de usuario
                         $this->rol->setIdrol($fila["idrol"]);
                         $this->rol->setNomrol($fila["nomrol"]);
-                        //crear el token y guardarlo
-                        $numtoken = $this->crud->GenerarToken();
-                        //enviar correo con token
-                        if($this->EnviarToken($mail, $numtoken)){
-                            //cifrar el token para enviarlo
-                            $this->setToken($this->crud->CifrarDato($numtoken));
-                            //cargar las claves para acceso a servicio
-                            $con = $this->crud->getConectar();
-                            $respuesta = true;
-                        }
+                        if($fila["idrol"] != 5){
+                            //crear el token y guardarlo
+                            $numtoken = $this->crud->GenerarToken();
+                            //enviar correo con token
+                            if($this->EnviarToken($mail, $numtoken)){
+                                //cifrar el token para enviarlo
+                                $this->setToken($this->crud->CifrarDato($numtoken));
+                                $respuesta = true;
+                            }
+                        } else { $respuesta = true; }
+                        
                     }
             }
         return $respuesta;
