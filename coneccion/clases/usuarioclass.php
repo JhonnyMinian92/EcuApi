@@ -43,13 +43,8 @@ class USUARIOCLASS {
                         $this->rol->setNomrol($fila["nomrol"]);
                         if($fila["idrol"] != 5){
                             //crear el token y guardarlo
-                            $numtoken = $this->crud->GenerarToken();
-                            //enviar correo con token
-                            if($this->EnviarToken($mail, $numtoken)){
-                                //cifrar el token para enviarlo
-                                $this->setToken($this->crud->CifrarDato($numtoken));
-                                $respuesta = true;
-                            }
+                            $this->setToken($this->crud->GenerarToken());
+                            $respuesta = true;
                         } else { $respuesta = true; }
                         
                     }

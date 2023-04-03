@@ -5,6 +5,7 @@ session_set_cookie_params(0);
 session_start();
 //Ruta de servicios
 $patch = "http://localhost/EcuApi/microservicios/ApiRest/";
+$soporte = "http://localhost/EcuApi/microservicios/Soporte/";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Código que se ejecuta si la solicitud es POST
@@ -22,10 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode($json);
                 if($data->status){ 
                     if($data->rol != 5){
-                        $_SESSION["token"] = $data->token; 
+                        $_SESSION["token"] = password_hash($data->token, PASSWORD_DEFAULT); 
                         $_SESSION["idusuario"]  = $data->idusuario; 
                         $_SESSION["rol"] = $data->rol;
-                        echo json_encode($data->status); 
+                        echo json_encode($data->status);
+                        EnviarToken($data->token, $_POST["correo"]);
                     } else { echo json_encode("-1"); }  
                 } else { echo json_encode($data->status); }
                 break;
@@ -115,6 +117,36 @@ function ValidarToken($token){
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => 'POST',
       CURLOPT_POSTFIELDS =>$json_data,
+      CURLOPT_HTTPHEADER => array(
+        'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+        'Content-Type: text/plain'
+      ),
+    ));
+    $response = curl_exec($curl);
+    curl_close($curl);
+    return $response;
+}
+
+function EnviarToken($token, $mail){
+    $data = array(
+            "opcion" => "mailtoken",
+            "mail" => $mail,
+            "token" => $token
+            );
+    // Convertir el array a formato JSON
+    $json_data = json_encode($data);
+    global $soporte;
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $soporte.'SoporteService.php',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'POST',
+      CURLOPT_POSTFIELDS => $json_data,
       CURLOPT_HTTPHEADER => array(
         'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
         'Content-Type: text/plain'
