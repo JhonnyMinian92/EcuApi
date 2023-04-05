@@ -42,7 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case "op4":
                 //funcion para Validar Autenticacion
                 $_POST["token"] = base64_decode($_POST["token"]);
-                echo ValidarToken($_POST["token"]);
+                //marcar el login
+                if(ValidarToken($_POST["token"])){ echo MarcarLogin($_SESSION["idusuario"],$_POST["geolocalizacion"]); } 
+                else { echo json_encode(false); }
                 break;
             case "op5":
                 //resetear sesion
@@ -139,6 +141,37 @@ function EnviarToken($token, $mail){
     $curl = curl_init();
     curl_setopt_array($curl, array(
       CURLOPT_URL => $soporte.'SoporteService.php',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'POST',
+      CURLOPT_POSTFIELDS => $json_data,
+      CURLOPT_HTTPHEADER => array(
+        'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+        'Content-Type: text/plain'
+      ),
+    ));
+    $response = curl_exec($curl);
+    curl_close($curl);
+    return $response;
+}
+
+function MarcarLogin($idusuario,$geolocalizacion){
+    $data = array(
+            "opcion" => "marcar",
+            "idusuario" => $idusuario,
+            "geolocalizacion" => $geolocalizacion
+    );
+    // Convertir el array a formato JSON
+    $json_data = json_encode($data);
+    global $patch;
+    //servicio para marcar
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $patch.'UsuarioService.php',
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => '',
       CURLOPT_MAXREDIRS => 10,

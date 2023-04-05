@@ -46,6 +46,9 @@ else {
                         case "permiso":
                             $respuesta = $crud->ValidarCifrado($data['token'],$data['almacen']);
                             break;
+                        case "marcar":
+                            $respuesta = $usuario->MarcarLogin($data['idusuario'], $data['geolocalizacion']);
+                            break;
                         default:
                             include '../../error/404.php';
                             break;

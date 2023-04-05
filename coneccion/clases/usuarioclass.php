@@ -67,6 +67,17 @@ class USUARIOCLASS {
         return $this->crud->EnviarCorreo($correo, $titulo, $mensaje);
     }
     
+    //funcion para marcar login
+    public function MarcarLogin($idusuario, $geolocalizacion) {
+        $respuesta = false;
+        $datos = array(
+            'geolocalizacion' => $geolocalizacion,
+            'idusuario' => $idusuario
+        ); 
+        if($this->crud->Ingresar('reg_login', $datos)){ $respuesta = true; }
+        return $respuesta;
+    }
+    
     //funcion para registrar
     
     //funcion para modificar clave

@@ -82,6 +82,39 @@ class MICRUD {
     }
     
     //ingresar
+    public function Ingresar($tabla, $datos){
+        try {
+                //conexion a la base de datos
+                $conexion = $this->conectar->ConectarBD();
+                // crear la consulta SQL
+                $campos = implode(', ', array_keys($datos));
+                $marcadores = implode(', ', array_fill(0, count($datos), '?'));
+                $sql = "INSERT INTO $tabla ($campos) VALUES ($marcadores)";
+                $stmt = $conexion->prepare($sql);
+                $tipos = ''; // inicializamos la cadena de tipos vacía
+                $valores = []; // inicializamos el array de valores vacío
+                // recorremos los datos para construir la cadena de tipos y el array de valores
+                foreach ($datos as $valor) {
+                    if (is_int($valor)) {
+                            $tipos .= 'i'; // 'i' para enteros
+                    } elseif (is_float($valor)) {
+                            $tipos .= 'd'; // 'd' para números de coma flotante
+                    } elseif (is_string($valor)) {
+                            $tipos .= 's'; // 's' para cadenas
+                    } else {
+                            $tipos .= 'b'; // 'b' para blobs/binarios
+                    }
+                    $valores[] = $valor; // agregamos el valor al array de valores
+                }
+                $stmt->bind_param($tipos, ...$valores);
+                if ($stmt->execute()) { 
+                    //cerrar conexion
+                    $this->conectar->Desconectar($conexion);
+                    return $stmt->insert_id;
+                } else { return false; }
+                     
+        } catch (Exception $e){ echo 'Error: ' . $e->getMessage(); return false; }
+    }
     
     //modificar
     
