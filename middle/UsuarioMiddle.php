@@ -7,7 +7,24 @@ session_start();
 $patch = "http://localhost/EcuApi/microservicios/ApiRest/";
 $soporte = "http://localhost/EcuApi/microservicios/Soporte/";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {    
+    
+    //obtener claves de acceso a servicio
+    require_once("../coneccion/conexion/conectar.php");
+    //instaciar la clase con las funciones
+    $con = new CONECTAR();
+    // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
+    if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
+        include '../error/405.php';
+        exit;
+    }
+    
+    //validar el acceso por clave de autorizacion
+    if(!password_verify("3Cu4pp#C0n3c72023",$_POST["auth"])){
+        include '../error/405.php';
+        exit;
+    }
+    
     // Código que se ejecuta si la solicitud es POST
     if(isset($_POST["opcion"])){
         //decifrar opcion cifrada de javascript
@@ -189,5 +206,8 @@ function MarcarLogin($idusuario,$geolocalizacion){
     curl_close($curl);
     return $response;
 }
+
+//funcion para obtener el token diario y cifrarlo (pasarlo por header de servicios)
+
 
 ?>
