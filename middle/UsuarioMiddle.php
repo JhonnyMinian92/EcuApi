@@ -3,16 +3,18 @@
 session_set_cookie_params(0);
 //iniciar sesion para guardar token y usuario
 session_start();
-//Ruta de servicios
-$patch = "http://localhost/EcuApi/microservicios/ApiRest/";
-$soporte = "http://localhost/EcuApi/microservicios/Soporte/";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {    
+if ($_SERVER['REQUEST_METHOD'] === 'POST') { 
     
     //obtener claves de acceso a servicio
     require_once("../coneccion/conexion/conectar.php");
     //instaciar la clase con las funciones
     $con = new CONECTAR();
+    
+    //Ruta de servicios (normal-soporte)
+    $patch = $con->getPatch();
+    $soporte = $con->getSoporte();
+    
     // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
     if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
         include '../error/405.php';
@@ -29,6 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if(isset($_POST["opcion"])){
         //decifrar opcion cifrada de javascript
         $_POST["opcion"] = base64_decode($_POST["opcion"]);
+        //obtener el token diario desde la bd y enviar por header
+        //cifrar token por seguridad
+        $tokendiario = password_hash($con->TokenServicios(), PASSWORD_DEFAULT);
+        
         //Escoger las opciones
         switch ($_POST["opcion"]) {
             case "op1":
@@ -36,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST["correo"] = base64_decode($_POST["correo"]);
                 $_POST["clave"] = base64_decode($_POST["clave"]);
                 //funcion para logueo incial de usuario
-                $json = ServicioLogueo($_POST["correo"],$_POST["clave"]);
+                $json = ServicioLogueo($_POST["correo"],$_POST["clave"],$tokendiario);
                 $data = json_decode($json);
                 if($data->status){ 
                     if($data->rol != 5){
@@ -44,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION["idusuario"]  = $data->idusuario; 
                         $_SESSION["rol"] = $data->rol;
                         echo json_encode($data->status);
-                        EnviarToken($data->token, $_POST["correo"]);
+                        EnviarToken($data->token, $_POST["correo"], $tokendiario);
                     } else { echo json_encode("-1"); }  
                 } else { echo json_encode($data->status); }
                 break;
@@ -60,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 //funcion para Validar Autenticacion
                 $_POST["token"] = base64_decode($_POST["token"]);
                 //marcar el login
-                if(ValidarToken($_POST["token"])){ echo MarcarLogin($_SESSION["idusuario"],$_POST["geolocalizacion"]); } 
+                if(ValidarToken($_POST["token"],$tokendiario)){ echo MarcarLogin($_SESSION["idusuario"],$_POST["geolocalizacion"],$tokendiario); } 
                 else { echo json_encode(false); }
                 break;
             case "op5":
@@ -84,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 
-function ServicioLogueo($correo,$clave){
+function ServicioLogueo($correo,$clave,$tokendiario){
     $data = array(
             "opcion" => "logueo",
             "correo" => $correo,
@@ -107,6 +113,7 @@ function ServicioLogueo($correo,$clave){
       CURLOPT_POSTFIELDS =>$json_data,
       CURLOPT_HTTPHEADER => array(
         'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+        'Authentication: Bearer '.$tokendiario.'',
         'Content-Type: text/plain'
       ),
     ));
@@ -115,7 +122,7 @@ function ServicioLogueo($correo,$clave){
     return $response;
 }
 
-function ValidarToken($token){
+function ValidarToken($token,$tokendiario){
     $data = array(
             "opcion" => "permiso",
             "token" => $token,
@@ -138,6 +145,7 @@ function ValidarToken($token){
       CURLOPT_POSTFIELDS =>$json_data,
       CURLOPT_HTTPHEADER => array(
         'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+        'Authentication: Bearer '.$tokendiario.'',
         'Content-Type: text/plain'
       ),
     ));
@@ -146,7 +154,7 @@ function ValidarToken($token){
     return $response;
 }
 
-function EnviarToken($token, $mail){
+function EnviarToken($token, $mail, $tokendiario){
     $data = array(
             "opcion" => "mailtoken",
             "mail" => $mail,
@@ -168,6 +176,7 @@ function EnviarToken($token, $mail){
       CURLOPT_POSTFIELDS => $json_data,
       CURLOPT_HTTPHEADER => array(
         'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+        'Authentication: Bearer '.$tokendiario.'',
         'Content-Type: text/plain'
       ),
     ));
@@ -176,7 +185,7 @@ function EnviarToken($token, $mail){
     return $response;
 }
 
-function MarcarLogin($idusuario,$geolocalizacion){
+function MarcarLogin($idusuario,$geolocalizacion,$tokendiario){
     $data = array(
             "opcion" => "marcar",
             "idusuario" => $idusuario,
@@ -199,6 +208,7 @@ function MarcarLogin($idusuario,$geolocalizacion){
       CURLOPT_POSTFIELDS => $json_data,
       CURLOPT_HTTPHEADER => array(
         'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+        'Authentication: Bearer '.$tokendiario.'',
         'Content-Type: text/plain'
       ),
     ));
@@ -206,8 +216,5 @@ function MarcarLogin($idusuario,$geolocalizacion){
     curl_close($curl);
     return $response;
 }
-
-//funcion para obtener el token diario y cifrarlo (pasarlo por header de servicios)
-
 
 ?>

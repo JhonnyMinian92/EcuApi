@@ -53,7 +53,7 @@ class USUARIOCLASS {
     }
     
     //enviar token personalizado para usuario logueado/registrado
-    public function EnviarToken($correo, $token){
+    public function EnviarToken($correo, $token, $tokendiario){
         $titulo = "Codigo de Autenticacion ECUAPP";
         //variable mensaje personalizada
         $mensaje = '<html><body>';
@@ -64,7 +64,7 @@ class USUARIOCLASS {
         $mensaje .= '<h2 style="text-align:center; font-size:36px; color:#2d3b4e;">' .$token. '</h2>';
         $mensaje .= '<p style="text-align:center;">Este código es confidencial, por favor no lo compartas con nadie. </p>';
         $mensaje .= '</body></html>';
-        return $this->crud->EnviarCorreo($correo, $titulo, $mensaje);
+        return $this->crud->EnviarCorreo($correo, $titulo, $mensaje, $tokendiario);
     }
     
     //funcion para marcar login

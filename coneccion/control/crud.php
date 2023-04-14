@@ -10,6 +10,7 @@ class MICRUD {
         $this->conectar = new CONECTAR();
     }
 
+    //Genera token por usuario para correo de 6 digitos
     public function GenerarToken(){
         // Generamos una cadena aleatoria de longitud 10
         $cadenaAleatoria = bin2hex(random_bytes(10));
@@ -23,17 +24,32 @@ class MICRUD {
         return $token;
     }
 
+    //cifrar datos para el token u otros datos
     public function CifrarDato($valor){
         //convertir en encriptado (claves y token)
         return password_hash($valor, PASSWORD_DEFAULT);
     }
 
+    //comprar valor del front con el cifrado en el back
     public function ValidarCifrado($valor, $cifrado){
         //validar el valor vs el cifrado
         if(password_verify($valor, $cifrado)){ return true; } else { return false; }
     }
+    
+    // Generar token para servicios
+    public function generarTokenServicio() {
+      $caracteres = bin2hex(random_bytes(10));
+      $cadena = '';
+      for ($i = 0; $i < 20; $i++) {
+        $posicion = rand(0, strlen($caracteres) - 1);
+        $cadena .= $caracteres[$posicion];
+      }
+      $token = hash('sha256', $cadena);
+      return $token;
+    }
 
-    public function EnviarCorreo($correo, $titulo, $mensaje){
+    //servicio general para enviar correo
+    public function EnviarCorreo($correo, $titulo, $mensaje, $tokendiario){
         $data = array(
             "destinatario" => $correo,
             "titulo" => $titulo,
@@ -55,6 +71,7 @@ class MICRUD {
         CURLOPT_POSTFIELDS => $json_data,
         CURLOPT_HTTPHEADER => array(
             'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
+            'Authentication: Bearer '.$tokendiario.'',
             'Content-Type: text/plain'
         ),
         ));
@@ -63,6 +80,7 @@ class MICRUD {
         return $response;
     }
 
+    //funcion para buscar con 1 parametro
     public function Encontrar($campo, $select){
         try {
                 //conexion a la base de datos
@@ -81,7 +99,7 @@ class MICRUD {
         } catch (Exception $e) { echo 'Error: ' . $e->getMessage(); return false; }
     }
     
-    //ingresar
+    //funcion basica para ingresar datos
     public function Ingresar($tabla, $datos){
         try {
                 //conexion a la base de datos
