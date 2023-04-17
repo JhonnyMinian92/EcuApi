@@ -80,7 +80,28 @@ class USUARIOCLASS {
     
     //funcion para registrar
     
+    
     //funcion para modificar clave
+    public function RecuperarClave($correo, $tokendiario){
+        $columnas = array("id_userapp");
+        $condicionales = array("mail_user" => $correo);
+        $resultado = $this->crud->Buscar("userapp",$columnas,$condicionales,"LIMIT 1");
+        if (empty($resultado)) { return "-1"; } 
+        else {
+                $id = base64_encode($resultado[0]["id_userapp"]);
+                //enviar correo para recuperar clave
+                $titulo = "Recuperacion de Contraseña ECUAPP";
+                $mensaje = '<html><body>';
+                $mensaje .= '<img src="https://i.postimg.cc/Y0Q2rkRt/logo2.png" alt="Logo ECUAPP" style="display:block; margin:auto;">';
+                $mensaje .= '<h1 style="text-align:center; color:#2d3b4e;">Recuperacion de Contraseña</h1>';
+                $mensaje .= '<p style="text-align:center;">Hemos recibido una solicitud para recuperar su contraseña. Para continuar, haga clic en el siguiente enlace: </p>';
+                $mensaje .= '<p style="text-align:center;">Su enlace de cambio de clave es:</p>';
+                $mensaje .= '<p style="text-align:center;"><a href="http://192.168.1.5/EcuApi/microservicios/Soporte/recuperarclave.php?token='.$id.'">Recuperar contraseña</a></p>';
+                $mensaje .= '<p style="text-align:center;">Si no ha solicitado la recuperación de contraseña, puede ignorar este correo electrónico. </p>';
+                $mensaje .= '</body></html>';
+                return $this->crud->EnviarCorreo($correo, $titulo, $mensaje, $tokendiario);
+        }
+    }
     
 
     //Getter de variables

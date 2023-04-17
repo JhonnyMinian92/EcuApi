@@ -17,7 +17,7 @@
                     //recuperar de cabecera token enviado por middle
                     $authHeader = isset($_SERVER['HTTP_AUTHENTICATION']) ? $_SERVER['HTTP_AUTHENTICATION'] : '';
                     $token = "";
-                    if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) { $token = $matches[1]; } //else { $token = $authHeader; }
+                    if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) { $token = $matches[1]; } else { $token = $authHeader; }
                     //comparar token y validar para el acceso
                     if($token == ""){ include '../../error/404.php'; exit; }
                     //comparar token cifrado por seguridad

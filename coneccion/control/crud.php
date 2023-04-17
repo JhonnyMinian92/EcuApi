@@ -141,6 +141,34 @@ class MICRUD {
     //eliminar
     
     //buscar
+    public function Buscar($tabla,$columnas,$condicionales, $subcondicion) {
+        try {
+                //conexion a la base de datos
+                $conexion = $this->conectar->ConectarBD();
+                // Construir las cláusulas individuales para cada campo y valor
+                $clausulas = array();
+                $valores = array();
+                foreach ($condicionales as $campo => $valor) {
+                    $clausulas[] = "$campo = ?";
+                    $valores[] = $valor;
+                }
+                // Unir las cláusulas con "AND" y crear la consulta final
+                $clausula_where = implode(' AND ', $clausulas);
+                $sql = "SELECT " . implode(', ', $columnas) . " FROM $tabla WHERE $clausula_where $subcondicion";
+                // Preparar la consulta con los valores correspondientes
+                $stmt = $conexion->prepare($sql);
+                // Ejecutar la consulta con los valores correspondientes
+                $stmt->execute($valores);
+                // Obtener los resultados
+                $result = $stmt->get_result();
+                $resultado = array();
+                while ($row = $result->fetch_assoc()) { $resultado[] = $row; }
+                // Cerrar la conexión
+                $stmt->close();
+                $this->conectar->Desconectar($conexion);
+                return $resultado;
+        } catch (Exception $e){ echo 'Error: ' . $e->getMessage(); return false; }
+    }
     
     public function getConectar() { return $this->conectar; }
 

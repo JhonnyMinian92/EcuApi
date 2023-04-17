@@ -21,8 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
+    if(!isset($_POST["auth"])){
+        include '../error/404.php';
+        exit;
+    }
+    
     //validar el acceso por clave de autorizacion
-    if(!password_verify("3Cu4pp#C0n3c72023",$_POST["auth"])){
+    if(!password_verify('3Cu4pp#C0n3c72023', json_decode($_POST["auth"]))){
         include '../error/405.php';
         exit;
     }
@@ -60,7 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case "op3":
                 //funcion para Modificar Clave
-                
+                $_POST["correo"] = base64_decode($_POST["correo"]);
+                echo RecuperarClave($_POST["correo"], $tokendiario);
                 break;
             case "op4":
                 //funcion para Validar Autenticacion
@@ -210,6 +216,36 @@ function MarcarLogin($idusuario,$geolocalizacion,$tokendiario){
         'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw',
         'Authentication: Bearer '.$tokendiario.'',
         'Content-Type: text/plain'
+      ),
+    ));
+    $response = curl_exec($curl);
+    curl_close($curl);
+    return $response;
+}
+
+function RecuperarClave($correo, $tokendiario){
+    $data = array(
+            "opcion" => "modifica",
+            "correo" => $correo
+    );
+    // Convertir el array a formato JSON
+    $json_data = json_encode($data);
+    global $patch;
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $patch.'UsuarioService.php',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'POST',
+      CURLOPT_POSTFIELDS => $json_data,
+      CURLOPT_HTTPHEADER => array(
+        'Authentication: Bearer '.$tokendiario.'',
+        'Content-Type: text/plain',
+        'Authorization: Basic M0N1NHBwU2VydjFjMzpSM3N0M2N1NHBw'
       ),
     ));
     $response = curl_exec($curl);
