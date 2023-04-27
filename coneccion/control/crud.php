@@ -1,13 +1,15 @@
 <?php
 
-require_once (dirname(__FILE__) ."/../conexion/conectar.php");
+require_once (dirname(__FILE__)."/../conexion/conectar.php");
 
 class MICRUD {
     //clases a conectar
     private $conectar;
+    private $repositorio;
 
     public function __construct() {
         $this->conectar = new CONECTAR();
+        $this->repositorio = $this->conectar->getPropiedades();
     }
 
     //Genera token por usuario para correo de 6 digitos
@@ -60,7 +62,7 @@ class MICRUD {
         //servicio de envio de correos
         $curl = curl_init();
         curl_setopt_array($curl, array(
-        CURLOPT_URL => $this->conectar->getPatch().'MailService.php',
+        CURLOPT_URL => $this->repositorio->getPatch().'MailService.php',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -80,7 +82,7 @@ class MICRUD {
         return $response;
     }
 
-    //funcion para buscar con 1 parametro
+    //funcion para buscar con 1 parametro (igual o like)
     public function Encontrar($campo, $select){
         try {
                 //conexion a la base de datos
@@ -126,9 +128,10 @@ class MICRUD {
                 }
                 $stmt->bind_param($tipos, ...$valores);
                 if ($stmt->execute()) { 
+                    $idingreso = $stmt->insert_id;
                     //cerrar conexion
                     $this->conectar->Desconectar($conexion);
-                    return $stmt->insert_id;
+                    return $idingreso;
                 } else { return false; }
                      
         } catch (Exception $e){ echo 'Error: ' . $e->getMessage(); return false; }
@@ -136,11 +139,11 @@ class MICRUD {
     
     //modificar
     
-    //listar
-    
     //eliminar
     
-    //buscar
+    //listar
+    
+    //buscar con igualdad
     public function Buscar($tabla,$columnas,$condicionales, $subcondicion) {
         try {
                 //conexion a la base de datos
@@ -170,6 +173,37 @@ class MICRUD {
         } catch (Exception $e){ echo 'Error: ' . $e->getMessage(); return false; }
     }
     
+    //buscar con like
+    public function BuscarLike($tabla,$columnas,$condicionales, $subcondicion) {
+        try {
+                //conexion a la base de datos
+                $conexion = $this->conectar->ConectarBD();
+                // Construir las cláusulas individuales para cada campo y valor
+                $clausulas = array();
+                $valores = array();
+                foreach ($condicionales as $campo => $valor) {
+                    $clausulas[] = "$campo LIKE %?%";
+                    $valores[] = $valor;
+                }
+                // Unir las cláusulas con "AND" y crear la consulta final
+                $clausula_where = implode(' AND ', $clausulas);
+                $sql = "SELECT " . implode(', ', $columnas) . " FROM $tabla WHERE $clausula_where $subcondicion";
+                // Preparar la consulta con los valores correspondientes
+                $stmt = $conexion->prepare($sql);
+                // Ejecutar la consulta con los valores correspondientes
+                $stmt->execute($valores);
+                // Obtener los resultados
+                $result = $stmt->get_result();
+                $resultado = array();
+                while ($row = $result->fetch_assoc()) { $resultado[] = $row; }
+                // Cerrar la conexión
+                $stmt->close();
+                $this->conectar->Desconectar($conexion);
+                return $resultado;
+        } catch (Exception $e){ echo 'Error: ' . $e->getMessage(); return false; }
+    }
+    
+    //Getter clase conectar
     public function getConectar() { return $this->conectar; }
 
 }

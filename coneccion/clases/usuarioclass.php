@@ -19,9 +19,9 @@ class USUARIOCLASS {
         //conexion a clase con funciones estandar
         $this->crud = new MICRUD();
         //conexion a clases de rol referencia a BD
-         $this->rol = new ROLCLASS();
-         //definir el token en vacio
-         $this->token = "";
+        $this->rol = new ROLCLASS();
+        //definir el token en vacio
+        $this->token = "";
     }
     
     //funcion login
@@ -85,7 +85,7 @@ class USUARIOCLASS {
     public function RecuperarClave($correo, $tokendiario){
         $columnas = array("id_userapp");
         $condicionales = array("mail_user" => $correo);
-        $resultado = $this->crud->Buscar("userapp",$columnas,$condicionales,"LIMIT 1");
+        $resultado = $this->crud->Buscar("userapp",$columnas,$condicionales,"AND (userapp.rol_user != 0 AND userapp.rol_user != 4) LIMIT 1");
         if (empty($resultado)) { return "-1"; } 
         else {
                 $id = base64_encode($resultado[0]["id_userapp"]);
@@ -109,6 +109,7 @@ class USUARIOCLASS {
     public function getMail() { return $this->mail_user; }
     public function getClave() { return $this->pass_user; }
     public function getToken() { return $this->token; }
+    
     //Getter de clases
     public function getRol() { return $this->rol; }
     public function getCrud() { return $this->crud;} 

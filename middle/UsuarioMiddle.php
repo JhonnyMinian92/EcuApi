@@ -10,13 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once("../coneccion/conexion/conectar.php");
     //instaciar la clase con las funciones
     $con = new CONECTAR();
-    
+    $repositorio = $con->getPropiedades();
     //Ruta de servicios (normal-soporte)
-    $patch = $con->getPatch();
-    $soporte = $con->getSoporte();
+    $patch = $repositorio->getPatch();
+    $soporte = $repositorio->getSoporte();
     
     // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
-    if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
+    if ($_SERVER['PHP_AUTH_USER'] !== $repositorio->getUsuarioservice() || $_SERVER['PHP_AUTH_PW'] !== $repositorio->getClaveservicio()) {
         include '../error/405.php';
         exit;
     }
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     //validar el acceso por clave de autorizacion
-    if(!password_verify('3Cu4pp#C0n3c72023', json_decode($_POST["auth"]))){
+    if(!password_verify($repositorio->getClaveacceso(),json_decode($_POST["auth"]))){
         include '../error/405.php';
         exit;
     }

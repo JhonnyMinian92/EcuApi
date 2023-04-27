@@ -7,15 +7,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 else {
         //obtener clase de control con funciones
-        require_once("../../coneccion/control/crud.php");
         require_once("../../coneccion/clases/usuarioclass.php");
         //instaciar la clase con las funciones
-        $crud = new MICRUD();
+        $user = new USUARIOCLASS();
+        $crud = $user->getCrud();
         //obtener la data de conexion
         $con = $crud->getConectar();
-
+        //obtener el repositorio
+        $repositorio = $con->getPropiedades();
         // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
-        if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
+        if ($_SERVER['PHP_AUTH_USER'] !== $repositorio->getUsuarioservice() || $_SERVER['PHP_AUTH_PW'] !== $repositorio->getClaveservicio()) {
             include '../../error/405.php';
             exit;
         } 
@@ -46,7 +47,6 @@ else {
                             $respuesta = $crud->GenerarToken();
                             break;
                         case "mailtoken":
-                            $user = new USUARIOCLASS();
                             $respuesta = $user->EnviarToken($data['mail'], $data['token'], $tokendiario);
                             break;
                         case "cifrarjs":

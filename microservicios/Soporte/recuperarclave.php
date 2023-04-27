@@ -12,7 +12,7 @@ if (!empty($_SERVER['HTTP_USER_AGENT'])) {
         exit;
     } else {
         $idusuario = base64_decode($_GET["token"]);
-        //proceso de recuperacion
+        //pagina recuperacion (llama servicios)
         
     }
     

@@ -10,15 +10,16 @@ else {
         require_once("../../coneccion/conexion/conectar.php");
         //instaciar la clase con las funciones
         $con = new CONECTAR();
+        $repositorio = $con->getPropiedades();
 
         // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
-        if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
+        if ($_SERVER['PHP_AUTH_USER'] !== $repositorio->getUsuarioservice() || $_SERVER['PHP_AUTH_PW'] !== $repositorio->getClaveservicio()) {
             include '../../error/405.php';
             exit;
         } 
         else {
                 //obtener una codigo aleatorio para conectar (front a back)
-                $conector = password_hash("3Cu4pp#C0n3c72023", PASSWORD_DEFAULT);
+                $conector = password_hash($repositorio->getClaveacceso(),PASSWORD_DEFAULT);
                 echo json_encode($conector);
         }
 }

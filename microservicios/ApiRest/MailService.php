@@ -9,7 +9,8 @@
             // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
             //obtener clases almacenadas
             $conexion = new CONECTAR();
-            if ($_SERVER['PHP_AUTH_USER'] !== $conexion->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $conexion->getPasservice()) {
+            $repositorio = $conexion->getPropiedades();
+            if ($_SERVER['PHP_AUTH_USER'] !== $repositorio->getUsuarioservice() || $_SERVER['PHP_AUTH_PW'] !== $repositorio->getClaveservicio()) {
                 include '../../error/405.php';
                 exit;
             } 

@@ -6,19 +6,18 @@ if (empty($_SERVER['HTTP_USER_AGENT'])) {
         include './error/404.php';
         exit;
     } else {
-            //que a este archivo solo pueda acceder el front
+            //llamar la clase
             require_once './coneccion/conexion/conectar.php';
             try{
+                //generar conexion
                 $con = new CONECTAR();
-                if($con->ConectarBD()){ echo json_encode("true"); } else { echo json_encode("false"); }
+                //enviar respuesta
+                echo json_encode($con->Response());
             } catch (Exception $e) { echo "false"; }
-    }
+    }   
 } else {
     include './error/405.php';
     exit();
 }
-
-
-
 
 ?>

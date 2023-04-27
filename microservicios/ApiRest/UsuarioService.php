@@ -13,8 +13,10 @@ else {
         $crud = $usuario->getCrud();
         //obtener datos de conexion
         $con = $crud->getConectar();
+        //obtener repositorio
+        $repositorio = $con->getPropiedades();
         // Verificar las credenciales del usuario antes de permitir que se ejecute la solicitud POST
-        if ($_SERVER['PHP_AUTH_USER'] !== $con->getUserservice() || $_SERVER['PHP_AUTH_PW'] !== $con->getPasservice()) {
+        if ($_SERVER['PHP_AUTH_USER'] !== $repositorio->getUsuarioservice() || $_SERVER['PHP_AUTH_PW'] !== $repositorio->getClaveservicio()) {
             include '../../error/405.php';
             exit;
         } 
